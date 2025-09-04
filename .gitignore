@@ -1,0 +1,17 @@
+node_modules/
+.zenn-cache/
+.DS_Store
+
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.crt
+*.ovpn
+
+private/**
+
+**/secrets/**
+**/credentials/**
+**/*.conf.real
