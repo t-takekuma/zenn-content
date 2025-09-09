@@ -12,4 +12,4 @@ published: true
 - 画像参照の確認
 - 公開（published: true）の反映確認
 
-![](../images/smoke.png)
+![](/images/smoke.png)
