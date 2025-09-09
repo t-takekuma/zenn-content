@@ -1,5 +1,7 @@
-name: node-env-check
-on: [workflow_dispatch]
+name: node-env-check                                       # Node 実行環境の固定を検証
+
+on: [workflow_dispatch]                                    # 手動実行のみ（常時は不要）
+
 jobs:
   node:
     runs-on: ubuntu-latest
@@ -7,5 +9,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-      - run: node -v && npm -v
+          node-version-file: '.nvmrc'                      # .nvmrc（例: 20）に合わせてセット
+      - run: node -v && npm -v                             # 実際のバージョンを出力

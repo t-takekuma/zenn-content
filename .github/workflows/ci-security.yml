@@ -1,29 +1,30 @@
-name: security-scan
+name: security-scan                                        # ワークフロー名（UI 表示用）
+
 on:
-  pull_request:
-    paths: [ "articles/**", "books/**", "images/**", ".github/**" ]
-  push:
+  pull_request:                                            # PR 作成/更新時に走らせる
+    paths: [ "articles/**", "books/**", "images/**", ".github/**" ]  # 対象パスを限定
+  push:                                                    # main 直 push にも保険を掛ける
     branches: [ main ]
     paths: [ "articles/**", "books/**", "images/**", ".github/**" ]
 
-permissions:
+permissions:                                               # Gitleaks の PR コメント等に必要な権限
   contents: read
   pull-requests: write  # PRにコメントするため
 
 jobs:
   gitleaks:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest                                 # Ubuntu ランナーで実行
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 全履歴をスキャン
-      - name: Run Gitleaks
+          fetch-depth: 0                                   # 履歴全体を取得（過去コミットもスキャン）
+      - name: Run Gitleaks                                 # 公式アクションで秘密検知
         uses: gitleaks/gitleaks-action@v2
+        with:
+          args: detect --no-banner --redact                # ログを簡素化＆検知値は伏字
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # 個人リポなら不要。組織リポならライセンスが必要:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        # PR への結果連携に使用
+          # 組織ライセンス等を使う場合は以下を有効化
           # GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
-          # 追加オプション（任意）:
+          # 独自ルールがあれば設定ファイルを指定（任意）
           # GITLEAKS_CONFIG: .github/gitleaks.toml
-          # GITLEAKS_ENABLE_COMMENTS: "true"
-          # GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "true"

@@ -1,0 +1,44 @@
+name: image-validate                                # 画像検証ワークフロー名
+
+on:
+  pull_request:                                     # PR でのみ実行
+    paths:                                          # 画像とMarkdownに変更があった時だけ起動
+      - "articles/**.md"
+      - "books/**.md"
+      - "images/**"
+
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4                   # コードを取得
+      - name: Validate image references in Markdown
+        shell: bash
+        run: |                                      # 以降はシェルスクリプト（行内コメントで意図を記載）
+          set -euo pipefail                         # 厳格モード：未定義/失敗で止める
+
+          # Markdownから /images または ./images を参照する画像リンクを抽出
+          # 形式例: ![](/images/foo.png) や ![](./images/bar.jpg)
+          grep -RInE '!\[[^]]*\]\((/|\.?/)?images/[^)]+\)' articles books \
+            | cut -d'(' -f2 | cut -d')' -f1 \
+            | while read -r p; do
+                # 絶対パス(/images/...)や相対パス(./images/...)を、リポ内の実パスに正規化
+                rp="${p#./}"; rp="${rp#/}"
+
+                # 実ファイルの存在チェック（なければエラー）
+                test -f "$rp" || { echo "::error file=$rp::missing image ($p)"; exit 1; }
+
+                # 拡張子の許可チェック（Zenn対応拡張子）
+                case "$rp" in
+                  images/*.[Pp][Nn][Gg]|images/*.[Jj][Pp][Gg]|images/*.[Jj][Pp][Ee][Gg]|images/*.[Gg][Ii][Ff]|images/*.[Ww][Ee][Bb][Pp]) ;;
+                  *) echo "::error file=$rp::unsupported extension (allowed: png jpg jpeg gif webp)"; exit 1 ;;
+                esac
+
+                # サイズ上限チェック（Zennは ~3MB 程度。3MB超を落とす）
+                sz=$(stat -c%s "$rp")
+                if [ "$sz" -gt $((3*1024*1024)) ]; then
+                  echo "::error file=$rp::image too large (${sz} bytes > 3MB)"; exit 1
+                fi
+              done
+
+          echo "OK: image references valid."       # ここまで来れば合格
