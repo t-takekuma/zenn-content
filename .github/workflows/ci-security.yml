@@ -1,0 +1,29 @@
+name: security-scan
+on:
+  pull_request:
+    paths: [ "articles/**", "books/**", "images/**", ".github/**" ]
+  push:
+    branches: [ main ]
+    paths: [ "articles/**", "books/**", "images/**", ".github/**" ]
+
+permissions:
+  contents: read
+  pull-requests: write  # PRにコメントするため
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 全履歴をスキャン
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 個人リポなら不要。組織リポならライセンスが必要:
+          # GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+          # 追加オプション（任意）:
+          # GITLEAKS_CONFIG: .github/gitleaks.toml
+          # GITLEAKS_ENABLE_COMMENTS: "true"
+          # GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "true"
