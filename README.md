@@ -1,17 +1,12 @@
 # Zenn Content
 
-このリポジトリは **Zenn の記事を GitHub で管理し、公開**するためのワークスペースであると同時に、長期的な技術資産のアーカイブです。    
-
-Zenn が読む範囲（articles/books/）と、資産の範囲（docs/notes/images/private/）を意図的に分離し、両立できるよう設計しています。
+このリポジトリは **Zenn の記事を GitHub で管理し、公開**するためのオレオレワークスペースです。    
 
 ## 目的
 
-- Zenn 記事管理・投稿管理を GitHub で実現
-- ローカルでプレビュー→PRレビュー→main へマージ→Zennと自動同期の流れを定着。
-- 資産の一元管理
-- 公開原稿は articles/・books/、公開しない素材や調査は docs/・notes/ へ分離し、漏えいを構造で予防。
-- 事故防止と品質担保
-- ローカルのGit HookとGitHub Actionsの二段構えで、秘密情報の誤コミットやリンク切れを検知。
+- Zenn 記事管理・投稿管理を GitHub で実施
+    - ローカルでプレビュー→PRレビュー→main へマージ→Zennと自動同期の流れを定着
+- ローカルのGit HookとGitHub Actionsの二段構えで、秘密情報の誤コミットやリンク切れを検知する
 
 ## 技術要素
 
@@ -66,75 +61,68 @@ zenn-content/
 ├─ package.json         # zenn-cli など（npx でも可）
 └─ README.md
 
-## 各ディレクトリ／ファイルの目的と採用技術
+## 各ディレクトリ／ファイルの目的と関連知識
 
 articles/・books/
-- 目的：Zennに公開されるMarkdown原稿の唯一の置き場（Zennはここだけ読む）
-- 技術：Zenn CLI（作成・プレビュー）、GitHub（同期）
+- 目的：Zennに公開されるMarkdown原稿の唯一の置き場。Zennはここだけ読む
+- 関連知識：Zenn CLI（作成・プレビュー）、GitHub（同期）
 
 images/
 - 目的：記事が参照する最終画像（PNG/JPEG/SVG など）を集約
-- 技術：Git（必要に応じて Git LFS）
+- 関連知識：Git（Git LFS？）
 
 docs/
-- 目的：図や図版の元データ・設計素材の保管（公開前の編集可能データ）
-- 技術：Mermaid/PlantUML/任意の作図ツール（Zenn は読みません）
+- 目的：図や図版の元データ・設計素材の保管
+- 関連知識：Mermaid/PlantUML/任意の作図ツール？
 
 notes/
 - 目的：公開しない研究メモ・調査ログ・貼り付け用テキストの保管
-→ 技術資産の“母艦”としての活用。Zenn公開面に影響させない安全地帯。
-- 技術：Markdown/任意
+- 関連知識：md
 
 private/
-- 目的：やむを得ず実値（鍵・証明書・実ドメイン等）を一時退避（常時ignore）
-→ 原則は「リポ外」保管。private/ は仮置き専用。
-- 技術：.gitignoreによりコミット対象外
-
-tools/pre-commit.sh
-- 目的：コミット前に秘密らしき文字列（鍵・トークン・トンネル ID など）を検知しブロック
-- 技術：Git Hooks（pre-commit）、POSIXシェル、grep
+- 目的：隠すべき実値（鍵・証明書・実ドメイン等）の配置箇所。常時ignore
 
 .github/workflows/*
-- 目的：CI による二重の安全弁と、公開物の健全性確認
+- 目的：CI、公開物の健全性確認
 - ci-security.yml：gitleaksで秘密検査
 - ci-links.yml：Markdownのリンク切れ検査
-- ci-node.yml ：Node実行環境の固定検証（将来の自動化の土台）
-- 技術：GitHub Actions/gitleaks/markdown-link-check/actions/setup-node/Dependabot
+- ci-node.yml ：Node実行環境の固定検証（将来の自動化の土台？）
+- 関連知識：GitHub Actions/gitleaks/markdown-link-check/actions/setup-node/Dependabot
 
 .editorconfig
 - 目的：改行コード・インデント・末尾改行等を横断統一し、差分ノイズを削減
-- 技術：EditorConfig
+- 関連知識：EditorConfig
 
 .gitattributes
 - 目的：EOL 正規化、画像のバイナリ扱い、private/**の配布除外（export-ignore）
-- 技術：Git Attributes
+- 関連知識：Git Attributes
 
 .git-blame-ignore-revs
 - 目的：一括整形など意味のない巨大差分をblameから除外して原因追跡を容易に
-- 技術：Git（blame --ignore-revs-file）
+- 関連知識：Git（blame --ignore-revs-file）
 
 .nvmrc
 - 目的：Node の実行バージョン固定（再現性確保）
-- 技術：Node/nvm
+- 関連知識：Node/nvm
 
 package.json
 - 目的：zenn-cli・markdownlint等の実行スクリプトを束ねる（npx でも可）
-- 技術：npmスクリプト
+- 関連知識：npmスクリプト
 
 ## ブランチ運用と公開フロー
 
-- main：公開の唯一ソース。Zenn同期の対象。
+- main：公開の唯一ソース。Zenn同期対象。
 - 作業方針：feature ブランチ→PR（CI 通過）→ main へマージ。
 - 公開の条件：対象ファイルのフロントマター published: true。
 - 下書き：published: false のまま main に置けます（Zenn の下書き扱い）。
 
 望ましさ：mainは保護ブランチ（レビュー必須）にし、PRベースで公開します。
 
-## セットアップ（初回だけ）
+## 初回セットアップ
 
-1. Node：.nvmrcに合わせてnvm use（なければ LTS を推奨）
-2. Zenn CLI：npx zenn previewが動けばOK（固定したい場合は devDependencies へ追加）
-3. Git Hook：tools/pre-commit.shを.git/hooks/pre-commitにリンク（本リポは済）
+1. Node：.nvmrcに合わせてnvm use
+2. Zenn CLI：npx zenn previewが動けばOK（固定したい場合 devDependencies 追加）
+3. Git Hook：tools/pre-commit.shを.git/hooks/pre-commitにリンク
 4. Zenn連携：Zennのアカウント設定から当該GitHubリポジトリを連携
 
 ## よく使うコマンド
@@ -144,11 +132,10 @@ package.json
 - 本作成：npx zenn new:book
 - 手動シークレット検査：bash scripts/scan-secrets.sh
 
-## 秘密情報の扱い（必読）
+## 秘密情報の扱い
 
 - 実IP/実ドメイン/鍵・証明書/APIトークン等はコミット禁止。
-- 原則：リポ外（例：隣のフォルダ）に保管。どうしても必要な一時退避はprivate/（常時 ignore）。
-- 記事内に設定例を載せる場合は擬似値を使う（example.internal、10.0.10.0/24 等を統一）。
+- どうしても必要なファイルはprivate/（常時 ignore）。
 
 ## 変更履歴の責任分離
 
@@ -157,7 +144,6 @@ package.json
 
 ## 資産集積のための指針（Zenn 以外）
 
-- 公開予定のない素材・調査メモは notes/ に集約（Zenn の公開面に影響しません）。
-- 図の元データは docs/、書き出した最終画像だけを images/ へ。
-- 大容量ファイルはGit LFSの利用を検討。
-
+- 公開予定のない素材・調査メモは notes/ に集約（Zenn の公開面に影響しないため）。
+- 図の元データは docs/、書き出した最終画像は images/ へ。
+- 大容量ファイルはGit LFS利用を検討。
