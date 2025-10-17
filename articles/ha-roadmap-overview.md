@@ -5,7 +5,7 @@ type: "tech"
 topics: ["ha","roadmap","portfolio"]
 published: true
 ---
-<!-- これは公開用記事。 -->
+
 # HA計画
 
 ## HA is何？
