@@ -9,7 +9,7 @@ jobs:
   links:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4                          # コード取得
+      - uses: actions/checkout@v6                          # コード取得
       - uses: gaurav-nelson/github-action-markdown-link-check@v1  # リンクチェッカー
         with:
           use-quiet-mode: "yes"                            # 失敗箇所のみログする
