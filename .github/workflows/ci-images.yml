@@ -11,7 +11,7 @@ jobs:
   images:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4                   # コードを取得
+      - uses: actions/checkout@v6                   # コードを取得
       - name: Validate image references in Markdown
         shell: bash
         run: |                                      # 以降はシェルスクリプト（行内コメントで意図を記載）
